@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Skills</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h2>Add Your Skills</h2>
+
+    <form method="POST">
+
+        <label>Skill You Can Teach:</label><br>
+        <input type="text" name="teach"><br>
+
+        <label>Level:</label>
+        <select name="teach_level">
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Advanced">Advanced</option>
+        </select>
+
+        <br><br>
+
+        <label>Skill You Want to Learn:</label><br>
+        <input type="text" name="learn"><br>
+
+        <label>Desired Level:</label>
+        <select name="learn_level">
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Advanced">Advanced</option>
+        </select>
+
+        <br><br>
+
+        <button type="submit">Save Skills</button>
+    </form>
+
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Matches</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Your Matches</h2>
+    <p style="text-align:center; color:#666; margin-bottom:20px;">
+        Discover students compatible with your skills.
+    </p>
+
+    {% if matches %}
+        {% for user in matches %}
+            <div class="card">
+                <h3 style="margin-bottom:10px;">{{ user.name }}</h3>
+
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: {{ user.score }}%;">
+                        {{ user.score }}%
+                    </div>
+                </div>
+
+                <p style="margin-top:10px; font-size:14px; color:#555;">
+                    Compatibility based on skill match & level alignment
+                </p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="card" style="text-align:center;">
+            <p style="font-size:15px;">
+                No matches found yet.
+            </p>
+            <p style="color:#666; font-size:13px; margin-top:6px;">
+                Try adding more skills to improve your chances.
+            </p>
+        </div>
+    {% endif %}
+
+    <div style="text-align:center; margin-top:25px;">
+        <a href="/dashboard">
+            <button>Back to Dashboard</button>
+        </a>
+    </div>
+
+</div>
+
+</body>
+</html>
