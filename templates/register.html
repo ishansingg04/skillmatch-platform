@@ -1,21 +1,31 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Register</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <h2>Register</h2>
+{% extends 'base.html' %}
+{% block title %}Register - SkillMatch{% endblock %}
+{% block content %}
+<div class="card card-center">
+    <h2 class="text-center">Create Account</h2>
+    <p class="text-center" style="margin-bottom: 2rem;">Join the SkillMatch community.</p>
 
     <form method="POST">
-        <input type="text" name="name" placeholder="Enter your name" required><br><br>
+        <div class="form-group">
+            <label for="name">Choose a Username</label>
+            <input type="text" name="name" id="name" class="input-field" required placeholder="Enter a unique username">
+        </div>
 
-        <input type="password" name="password" placeholder="Enter password" required><br><br>
-
-        <button type="submit">Register</button>
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" name="email" id="email" class="input-field" required placeholder="name@example.com">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Create a Password</label>
+            <input type="password" name="password" id="password" class="input-field" required placeholder="Enter a secure password">
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Sign Up</button>
     </form>
-
-    <br>
-    <a href="/login">Already have an account? Login</a>
-</body>
-</html>
+    
+    <p class="text-center" style="margin-top: 1.5rem; font-size: 0.9rem;">
+        Already have an account? <a href="/login" style="color: var(--primary); font-weight: 500; text-decoration: none;">Login here</a>
+    </p>
+</div>
+{% endblock %}

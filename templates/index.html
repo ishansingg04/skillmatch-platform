@@ -1,19 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Skill Swap</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-
-<div class="container">
-    <h1>Skill Swap Platform</h1>
-
-    <div class="card" style="text-align:center;">
-        <a href="/register"><button>Register</button></a>
-        <a href="/login"><button>Login</button></a>
+{% extends 'base.html' %}
+{% block title %}Welcome - SkillMatch{% endblock %}
+{% block content %}
+<div class="card card-center text-center">
+    <h1>SkillMatch Platform</h1>
+    <p style="margin-bottom: 2rem;">Connecting learners and experts to exchange knowledge beautifully.</p>
+    
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <a href="/register" class="btn btn-primary" style="display: block;">Register</a>
+        <a href="/login" class="btn btn-outline" style="display: block;">Login</a>
     </div>
 </div>
-
-</body>
-</html>
+{% endblock %}

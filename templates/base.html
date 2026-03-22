@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SkillMatch{% endblock %}</title>
+    <!-- Modern typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-light">
+
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="/" class="nav-logo">SkillMatch</a>
+        <div class="nav-links">
+            {% if session.get('user_id') %}
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/matches/{{ session['user_id'] }}" class="nav-link">Matches</a>
+                <a href="/logout" class="nav-button">Logout</a>
+            {% else %}
+                <a href="/login" class="nav-link">Login</a>
+                <a href="/register" class="nav-button">Register</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<main class="main-container fade-in">
+    {% block content %}{% endblock %}
+</main>
+
+<script>
+    // Staggered slide-up animations for cards
+    document.addEventListener("DOMContentLoaded", () => {
+        const cards = document.querySelectorAll(".card");
+        cards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+            card.classList.add("slide-up");
+        });
+    });
+</script>
+
+{% if session.get('user_id') %}
+<!-- AI Assistant FAB & Sidebar -->
+<style>
+    /* Floating Action Button */
+    .ai-fab {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #10b981, #3b82f6);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.8rem;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        z-index: 1000;
+        border: none;
+    }
+    .ai-fab:hover {
+        transform: scale(1.05) translateY(-2px);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+    }
+    
+    /* Overlay */
+    .ai-sidebar-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(15, 23, 42, 0.3);
+        backdrop-filter: blur(2px);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 1001;
+    }
+    .ai-sidebar-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Sidebar Panel */
+    .ai-sidebar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 350px;
+        height: 100vh;
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: -5px 0 25px rgba(15, 23, 42, 0.08);
+        z-index: 1002;
+        transform: translateX(100%);
+        transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        display: flex;
+        flex-direction: column;
+    }
+    .ai-sidebar.open {
+        transform: translateX(0);
+    }
+    
+    .ai-sidebar-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: white;
+    }
+    .ai-sidebar-header h2 {
+        font-size: 1.25rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .ai-close-btn {
+        background: transparent;
+        border: none;
+        font-size: 1.5rem;
+        color: #64748b;
+        cursor: pointer;
+        padding: 0;
+        transition: color 0.2s;
+    }
+    .ai-close-btn:hover { color: #0f172a; }
+
+    /* Chat Elements */
+    .ai-chat-box {
+        flex: 1;
+        padding: 1.5rem;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: #f8fafc;
+    }
+    
+    .ai-chat-bubble {
+        padding: 0.8rem 1rem;
+        border-radius: 14px;
+        max-width: 85%;
+        line-height: 1.5;
+        font-size: 0.95rem;
+        animation: fadeIn 0.3s ease-out;
+        word-wrap: break-word;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    
+    .ai-chat-user {
+        align-self: flex-end;
+        background: var(--primary);
+        color: white;
+        border-bottom-right-radius: 4px;
+        box-shadow: 0 4px 6px rgba(79, 70, 229, 0.15);
+    }
+    
+    .ai-chat-ai {
+        align-self: flex-start;
+        background: white;
+        border: 1px solid #e2e8f0;
+        color: var(--text-main);
+        border-bottom-left-radius: 4px;
+        white-space: pre-wrap;
+    }
+
+    .ai-input-area {
+        padding: 1rem;
+        background: white;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        gap: 0.5rem;
+    }
+    .ai-input-area .input-field {
+        margin: 0;
+        flex: 1;
+        padding: 0.8rem 1rem;
+        border-radius: 20px;
+    }
+    .ai-input-area .btn {
+        padding: 0.8rem 1rem;
+        border-radius: 20px;
+        margin: 0;
+    }
+
+    /* Typing Animation */
+    .ai-typing-indicator {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        padding: 0.2rem 0;
+    }
+    .ai-typing-dot {
+        width: 5px; height: 5px;
+        background-color: #94a3b8; border-radius: 50%;
+        animation: aiBounce 1.4s infinite ease-in-out both;
+    }
+    .ai-typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .ai-typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    .ai-typing-dot:nth-child(3) { animation-delay: 0s; }
+    
+    @keyframes aiBounce {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1); }
+    }
+    
+    /* Scrollbar */
+    .ai-chat-box::-webkit-scrollbar { width: 5px; }
+    .ai-chat-box::-webkit-scrollbar-track { background: transparent; }
+    .ai-chat-box::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+</style>
+
+<button class="ai-fab" id="ai-fab" title="Open AI Assistant">✨</button>
+
+<div class="ai-sidebar-overlay" id="ai-overlay"></div>
+
+<div class="ai-sidebar" id="ai-sidebar">
+    <div class="ai-sidebar-header">
+        <h2>✨ AI Assistant</h2>
+        <button class="ai-close-btn" id="ai-close">&times;</button>
+    </div>
+    
+    <div class="ai-chat-box" id="ai-chat-box">
+        <div class="ai-chat-bubble ai-chat-ai">Hello! I'm your learning assistant powered by Gemini. Ask me anything!</div>
+    </div>
+    
+    <form class="ai-input-area" id="ai-chat-form">
+        <input type="text" id="ai-chat-input" class="input-field" placeholder="Type a message..." autocomplete="off" required>
+        <button type="submit" id="ai-send-btn" class="btn btn-primary" style="display: flex; align-items: center; justify-content: center; width: auto;">
+            ↗
+        </button>
+    </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const fab = document.getElementById("ai-fab");
+    const sidebar = document.getElementById("ai-sidebar");
+    const overlay = document.getElementById("ai-overlay");
+    const closeBtn = document.getElementById("ai-close");
+    
+    const chatForm = document.getElementById("ai-chat-form");
+    const chatInput = document.getElementById("ai-chat-input");
+    const chatBox = document.getElementById("ai-chat-box");
+    const sendBtn = document.getElementById("ai-send-btn");
+
+    if (!fab) return;
+
+    function toggleSidebar() {
+        sidebar.classList.toggle("open");
+        overlay.classList.toggle("active");
+        if (sidebar.classList.contains("open")) {
+            chatInput.focus();
+        }
+    }
+
+    fab.addEventListener("click", toggleSidebar);
+    closeBtn.addEventListener("click", toggleSidebar);
+    overlay.addEventListener("click", toggleSidebar);
+
+    function scrollToBottom() {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function appendBubble(content, typeClass) {
+        const bubble = document.createElement("div");
+        bubble.classList.add("ai-chat-bubble", typeClass);
+        if (typeof content === "string") {
+            bubble.textContent = content;
+        } else {
+            bubble.appendChild(content);
+        }
+        chatBox.appendChild(bubble);
+        scrollToBottom();
+        return bubble;
+    }
+
+    chatForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        chatInput.value = "";
+        sendBtn.disabled = true;
+        sendBtn.style.opacity = "0.7";
+
+        appendBubble(message, "ai-chat-user");
+
+        const typingIndicator = document.createElement("div");
+        typingIndicator.className = "ai-typing-indicator";
+        typingIndicator.innerHTML = '<div class="ai-typing-dot"></div><div class="ai-typing-dot"></div><div class="ai-typing-dot"></div>';
+        const typingBubble = appendBubble(typingIndicator, "ai-chat-ai");
+
+        try {
+            const response = await fetch("/ask_ai", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: message })
+            });
+            const data = await response.json();
+            
+            typingBubble.remove();
+            appendBubble(data.reply || "No response received.", "ai-chat-ai");
+        } catch (error) {
+            typingBubble.remove();
+            appendBubble("❌ Connection error. Please try again.", "ai-chat-ai");
+            console.error("Chat error:", error);
+        } finally {
+            sendBtn.disabled = false;
+            sendBtn.style.opacity = "1";
+            chatInput.focus();
+        }
+    });
+});
+</script>
+{% endif %}
+</body>
+</html>

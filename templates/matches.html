@@ -1,52 +1,59 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Your Matches</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-
-<div class="container">
-
-    <h2>Your Matches</h2>
-    <p style="text-align:center; color:#666; margin-bottom:20px;">
-        Discover students compatible with your skills.
-    </p>
-
-    {% if matches %}
-        {% for user in matches %}
-            <div class="card">
-                <h3 style="margin-bottom:10px;">{{ user.name }}</h3>
-
-                <div class="progress-bar-container">
-                    <div class="progress-bar" style="width: {{ user.score }}%;">
-                        {{ user.score }}%
-                    </div>
-                </div>
-
-                <p style="margin-top:10px; font-size:14px; color:#555;">
-                    Compatibility based on skill match & level alignment
-                </p>
-            </div>
-        {% endfor %}
-    {% else %}
-        <div class="card" style="text-align:center;">
-            <p style="font-size:15px;">
-                No matches found yet.
-            </p>
-            <p style="color:#666; font-size:13px; margin-top:6px;">
-                Try adding more skills to improve your chances.
-            </p>
-        </div>
-    {% endif %}
-
-    <div style="text-align:center; margin-top:25px;">
-        <a href="/dashboard">
-            <button>Back to Dashboard</button>
-        </a>
+{% extends 'base.html' %}
+{% block title %}Matches - SkillMatch{% endblock %}
+{% block content %}
+<div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h2 style="margin-bottom: 0.25rem;">Your Top Matches</h2>
+        <p style="margin-bottom: 0;">Based on your teaching and learning goals.</p>
     </div>
-
+    <a href="/dashboard" class="btn btn-outline" style="width: auto; background: var(--card-bg);">Back to Dashboard</a>
 </div>
 
-</body>
-</html>
+{% if matches %}
+    <div class="match-grid">
+        {% for match in matches %}
+            <div class="card match-card">
+                <div class="match-header">
+                    <div class="avatar avatar-sm">
+                        {{ match.name[0] | upper }}
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.1rem; margin-bottom: 0.25rem;">{{ match.name }}</h3>
+                        
+                        {% set score = match.score %}
+                        {% if score >= 80 %}
+                            <span class="badge badge-high">High Match</span>
+                        {% elif score >= 50 %}
+                            <span class="badge badge-medium">Good Match</span>
+                        {% else %}
+                            <span class="badge badge-low">Fair Match</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div style="margin-top: auto;">
+                    <div class="match-score">
+                        <span style="color: var(--text-muted); font-weight: 500;">Match Score</span>
+                        <span style="color: var(--text-main); font-weight: 700;">{{ match.score }}%</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar {% if score >= 80 %}high-match{% elif score >= 50 %}medium-match{% else %}low-match{% endif %}" style="width: {{ match.score }}%; max-width: 100%;"></div>
+                    </div>
+                    {% if match.email %}
+                    <a href="mailto:{{ match.email }}" class="btn btn-primary" style="margin-top: 1.2rem; padding: 0.6rem 1rem; width: 100%; display: flex; justify-content: center; align-items: center; gap: 0.5rem; font-size: 0.95rem;">
+                        ✉️ Contact
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card text-center" style="padding: 4rem 2rem;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+        <h3 style="margin-bottom: 0.5rem;">No matches found yet</h3>
+        <p>Try adding more skills to find a learning partner!</p>
+        <a href="/add_skills/{{ session['user_id'] }}" class="btn btn-primary" style="margin-top: 1.5rem; width: auto; display: inline-block;">Add More Skills</a>
+    </div>
+{% endif %}
+{% endblock %}

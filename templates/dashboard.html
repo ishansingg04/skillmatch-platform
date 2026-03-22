@@ -1,57 +1,56 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-
-<div class="container">
-
-    <!-- Header -->
-    <div class="match-header" style="justify-content:center; margin-bottom:20px;">
-        <div class="avatar">
+{% extends 'base.html' %}
+{% block title %}Dashboard - SkillMatch{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="profile-header">
+        <div class="avatar" style="box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
             {{ username[0] | upper }}
         </div>
-        <h2>Welcome, {{ username }}</h2>
+        <div>
+            <h2 style="margin-bottom: 0.5rem; font-size: 1.8rem;">Welcome back, {{ username }}!</h2>
+            <p style="margin-bottom: 0; font-size: 1.1rem;">Manage your skills and find matches.</p>
+        </div>
     </div>
-
-    <!-- Skills Section -->
-    <div class="card">
-        <h3 style="text-align:center; margin-bottom:15px;">Your Skills</h3>
-
-        {% if skills %}
-            {% for skill in skills %}
-                <div style="display:flex; justify-content:space-between; padding:6px 0;">
-                    <span>
-                        <strong>{{ skill[0] }}</strong>
-                    </span>
-                    <span>
-                        {{ skill[1] }} | {{ skill[2] }}
-                    </span>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p style="text-align:center;">No skills added yet.</p>
-        {% endif %}
-    </div>
-
-    <!-- Navigation Buttons -->
-    <div class="card button-group">
-        <a href="/add_skills/{{ session['user_id'] }}">
-            <button>Add Skills</button>
-        </a>
-
-        <a href="/matches/{{ session['user_id'] }}">
-            <button>View Matches</button>
-        </a>
-
-        <a href="/logout">
-            <button>Logout</button>
-        </a>
-    </div>
-
 </div>
 
-</body>
-</html>
+<div class="card">
+    <h3>Your Skills</h3>
+    
+    {% if skills %}
+        <div style="margin-bottom: 2rem;">
+            <p style="font-weight: 600; margin-bottom: 0.75rem; color: var(--text-main); font-size: 1.1rem;">I can teach:</p>
+            <div class="skills-container" style="gap: 1rem;">
+                {% for skill in skills %}
+                    {% if skill[1] == 'teach' %}
+                        <div class="skill-chip">
+                            {{ skill[0] }}
+                            <span class="skill-level">{{ skill[2] }}</span>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div>
+            <p style="font-weight: 600; margin-bottom: 0.75rem; color: var(--text-main); font-size: 1.1rem;">I want to learn:</p>
+            <div class="skills-container" style="gap: 1rem;">
+                {% for skill in skills %}
+                    {% if skill[1] == 'learn' %}
+                        <div class="skill-chip" style="background: rgba(139, 92, 246, 0.1); color: var(--secondary);">
+                            {{ skill[0] }}
+                            <span class="skill-level">{{ skill[2] }}</span>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <p class="text-center" style="padding: 2rem 0;">No skills added yet. Start by adding your skills!</p>
+    {% endif %}
+</div>
+
+<div class="action-group" style="justify-content: flex-start; gap: 1.5rem;">
+    <a href="/add_skills/{{ session['user_id'] }}" class="btn btn-primary" style="width: auto; padding: 0.85rem 2rem;">Add New Skills</a>
+    <a href="/matches/{{ session['user_id'] }}" class="btn btn-outline" style="width: auto; padding: 0.85rem 2rem; background: white;">Find Matches</a>
+</div>
+{% endblock %}

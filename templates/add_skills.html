@@ -1,40 +1,44 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Add Skills</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <h2>Add Your Skills</h2>
+{% extends 'base.html' %}
+{% block title %}Add Skills - SkillMatch{% endblock %}
+{% block content %}
+<div class="card card-center" style="max-width: 600px;">
+    <h2 class="text-center">Add Your Skills</h2>
+    <p class="text-center" style="margin-bottom: 2rem;">Tell us what you want to teach and learn.</p>
 
     <form method="POST">
+        <h3 style="font-size: 1.1rem; color: var(--primary); margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem;">What can you teach?</h3>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;">
+            <div class="form-group" style="flex: 2; min-width: 200px;">
+                <label>Skill Name (e.g. Python, Guitar)</label>
+                <input type="text" name="teach" class="input-field" required placeholder="Skill to teach">
+            </div>
+            <div class="form-group" style="flex: 1; min-width: 150px;">
+                <label>Your Level</label>
+                <select name="teach_level" class="input-field">
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                </select>
+            </div>
+        </div>
 
-        <label>Skill You Can Teach:</label><br>
-        <input type="text" name="teach"><br>
+        <h3 style="font-size: 1.1rem; color: var(--secondary); margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem;">What do you want to learn?</h3>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;">
+            <div class="form-group" style="flex: 2; min-width: 200px;">
+                <label>Skill Name</label>
+                <input type="text" name="learn" class="input-field" required placeholder="Skill to learn">
+            </div>
+            <div class="form-group" style="flex: 1; min-width: 150px;">
+                <label>Desired Level</label>
+                <select name="learn_level" class="input-field">
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                </select>
+            </div>
+        </div>
 
-        <label>Level:</label>
-        <select name="teach_level">
-            <option value="Beginner">Beginner</option>
-            <option value="Intermediate">Intermediate</option>
-            <option value="Advanced">Advanced</option>
-        </select>
-
-        <br><br>
-
-        <label>Skill You Want to Learn:</label><br>
-        <input type="text" name="learn"><br>
-
-        <label>Desired Level:</label>
-        <select name="learn_level">
-            <option value="Beginner">Beginner</option>
-            <option value="Intermediate">Intermediate</option>
-            <option value="Advanced">Advanced</option>
-        </select>
-
-        <br><br>
-
-        <button type="submit">Save Skills</button>
+        <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Save Skills & Find Matches</button>
     </form>
-
-</body>
-</html>
+</div>
+{% endblock %}

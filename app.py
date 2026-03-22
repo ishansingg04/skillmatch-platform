@@ -1,6 +1,9 @@
+import os
 import sqlite3
 
-from flask import Flask, render_template, request, redirect, session
+from dotenv import load_dotenv
+from google import genai
+from flask import Flask, render_template, request, redirect, session, jsonify
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -14,7 +17,8 @@ def init_db():
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
-        password TEXT NOT NULL
+        password TEXT NOT NULL,
+        email TEXT DEFAULT ''
     )
     """)
     
@@ -53,14 +57,15 @@ def home():
 def register():
     if request.method == "POST":
         name = request.form["name"]
+        email = request.form.get("email", "")
         password = request.form["password"]
 
         conn = sqlite3.connect("database.db")
         cursor = conn.cursor()
 
         cursor.execute(
-            "INSERT INTO users (name, password) VALUES (?, ?)",
-            (name, password)
+            "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
+            (name, email, password)
         )
 
         user_id = cursor.lastrowid
@@ -131,13 +136,13 @@ def matches(user_id):
     current_user_learn = cursor.fetchall()
 
     # Get all other users
-    cursor.execute("SELECT id, name FROM users WHERE id != ?", (user_id,))
+    cursor.execute("SELECT id, name, email FROM users WHERE id != ?", (user_id,))
     other_users = cursor.fetchall()
 
     matched_users = []
 
     for other in other_users:
-        other_id, other_name = other
+        other_id, other_name, other_email = other
 
         # Other user's teach skills
         cursor.execute("""
@@ -170,6 +175,7 @@ def matches(user_id):
         if score > 0:
             matched_users.append({
                 "name": other_name,
+                "email": other_email,
                 "score": score * 50
             })
 
@@ -232,6 +238,35 @@ def dashboard():
     return render_template("dashboard.html", 
                         username=user[0], 
                         skills=skills)
+
+
+
+@app.route("/ask_ai", methods=["POST"])
+def ask_ai():
+    if "user_id" not in session:
+        return jsonify({"reply": "Oops! Please log in to use the AI Assistant."}), 401
+        
+    data = request.get_json()
+    user_message = data.get("message") if data else ""
+    
+    if not user_message:
+        return jsonify({"reply": "I didn't catch that. Could you try again?"})
+        
+    load_dotenv(override=True)
+    gemini_api_key = os.getenv("GEMINI_API_KEY")
+    
+    if not gemini_api_key or gemini_api_key == "YOUR_GEMINI_API_KEY":
+        return jsonify({"reply": "⚠️ API Key not configured. Please paste your GEMINI_API_KEY inside the '.env' file."})
+        
+    try:
+        client = genai.Client(api_key=gemini_api_key)
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents="You are a helpful tutor. Answer clearly: " + user_message
+        )
+        return jsonify({"reply": response.text})
+    except Exception as e:
+        return jsonify({"reply": f"Error generating response: {str(e)}"})
 
 if __name__ == "__main__":
     app.run(debug=True)
