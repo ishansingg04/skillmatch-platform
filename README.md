@@ -49,3 +49,15 @@ The platform matches users based on:
 ---
 
 ## 📂 Project Structure
+
+
+## 📸 Screenshots
+
+### Dashboard
+![Dashboard](screenshots/dashboard.png)
+
+### Matches
+![Matches](screenshots/match.png)
+
+##Login
+![Login](screenshots/Login.png)
